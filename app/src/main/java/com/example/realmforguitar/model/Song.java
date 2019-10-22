@@ -3,14 +3,18 @@ package com.example.realmforguitar.model;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.Required;
 
 public class Song extends RealmObject {
-    private String name;
-    private String text;
+    @Required
+    private String name = "";
+    @Required
+    private String text = "";
+    private String clearText = "";
     private boolean isUser;
     private boolean isFavorite;
     private RealmList<Ackord> ackords = new RealmList<>();
-    private int parentId;
+    private int parentId = 0;
     @PrimaryKey
     private int id;
 
@@ -68,6 +72,14 @@ public class Song extends RealmObject {
 
     public void setParentId(int parentId) {
         this.parentId = parentId;
+    }
+
+    public String getClearText() {
+        return clearText;
+    }
+
+    public void setClearText(String clearText) {
+        this.clearText = clearText;
     }
 
     @Override

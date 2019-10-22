@@ -2,9 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
 android {
     compileSdkVersion 28
+//    dexOptions {
+//        javaMaxHeapSize "4G"
+//    }
     defaultConfig {
         applicationId "com.example.realmforguitar"
-        minSdkVersion 15
+        minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"

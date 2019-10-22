@@ -1,6 +1,7 @@
 package com.example.realmforguitar.dao;
 
 import com.example.realmforguitar.model.Group;
+import com.example.realmforguitar.model.Song;
 
 import io.realm.Realm;
 
@@ -13,6 +14,10 @@ public class GroupDao {
 
         realm.beginTransaction();
         item = realm.copyToRealmOrUpdate(item);
+
+        for (Song song: item.getListSongs()){
+            song.setParentId(item.getId());
+        }
         realm.commitTransaction();
 
         return item;

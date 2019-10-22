@@ -1,7 +1,9 @@
 package com.example.realmforguitar;
 
+import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.ImageView;
 
 import com.example.realmforguitar.dao.AckordDao;
 import com.example.realmforguitar.dao.GroupDao;
@@ -17,14 +19,16 @@ import com.example.realmforguitar.readers.ParserJson;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.io.StringReader;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import io.realm.Realm;
 
 public class MainActivity extends AppCompatActivity {
-
+    Bitmap f = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,65 +37,93 @@ public class MainActivity extends AppCompatActivity {
         ParserJson parserJson = new ParserJson(getApplicationContext());
         Map<GroupTDO, List<SongTDO>> parse = parserJson.parse();
         System.out.println(parse.size());
-      //  System.out.println(parse);
+        //  System.out.println(parse);
+        TreeMap<GroupTDO, List<SongTDO>> sorted = new TreeMap<>(parse);
+
         Realm.init(getApplicationContext());
-      for(  Map.Entry<GroupTDO, List<SongTDO>> entry: parse.entrySet()){
+        for (Map.Entry<GroupTDO, List<SongTDO>> entry : sorted.entrySet()) {
 
-          GroupTDO key = entry.getKey();
-          byte[] picData = null;
-          try {
-              InputStream open = getApplicationContext().getAssets().open(key.getPic().substring(1, key.getPic().length()));
-           picData = readBytes(open);
-
-          } catch (IOException e) {
-              e.printStackTrace();
-          }
-
-          Group group = new Group();
-          group.setName(key.getName());
-          group.setImgData(picData);
+            GroupTDO key = entry.getKey();
+            byte[] picData = null;
+//            try {
+//                InputStream open = getApplicationContext().getAssets().open(key.getPic().substring(1, key.getPic().length()));
+//                picData = readBytes(open);
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
 
 
 
-          List<SongTDO> value = entry.getValue();
-          SongDao songDao = new SongDao();
-         for(SongTDO songTDO: value) {
-             List<AckordTDO> ackordListTDO = songTDO.getAckordListTDO();
+            Group group = new Group();
+            group.setName(key.getName().toLowerCase());
 
-             AckordDao ackordDao = new AckordDao();
-             Song song = new Song();
+            picData =  getLetterTile(group.getName());
 
-             for (AckordTDO ackordTDO: ackordListTDO) {
-                 Ackord ackord = new Ackord();
-                 String[] split = ackordTDO.getName().split("\\/");
-                 String[] name = split[split.length - 1].split("\\.");
-                String name1 =  name[0].toLowerCase().replace("w","#").replace("p","+").replace("sus", "сус").replace("s", "/").replace("сус", "sus").replace("z", "-");
-
-                 ackord.setName(name1);
-
-                 try {
-                     ackord.setImageData(readBytes(getApplicationContext().getAssets().open(ackordTDO.getPic())));
-                 } catch (IOException e) {
-                     System.out.println(ackordTDO.getName() + "---" + ackordTDO.getPic());
-                     e.printStackTrace();
-                 }
-                ackord = ackordDao.createItem(ackord);
-                 song.getAckords().add(ackord);
-             }
+            group.setImgData(picData);
 
 
-             song.setText(songTDO.getText());
-             song.setName(songTDO.getName());
-            song =  songDao.createItem(song);
-             group.getListSings().add(song);
-         }
+            List<SongTDO> value = entry.getValue();
+            Collections.sort(value);
 
-          GroupDao groupDao = new GroupDao();
-          groupDao.createItem(group);
+            SongDao songDao = new SongDao();
+            for (SongTDO songTDO : value) {
+                List<AckordTDO> ackordListTDO = songTDO.getAckordListTDO();
+
+                AckordDao ackordDao = new AckordDao();
+                Song song = new Song();
+
+                for (AckordTDO ackordTDO : ackordListTDO) {
+                    Ackord ackord = new Ackord();
+                    String[] split = ackordTDO.getName().split("\\/");
+                    String[] name = split[split.length - 1].split("\\.");
+                    String name1 = name[0].toLowerCase().replace("w", "#").replace("p", "+").replace("sus", "сус").replace("s", "/").replace("сус", "sus").replace("z", "-");
+
+                    ackord.setName(name1);
+
+                    try {
+                        String[] splitAckordPic = ackordTDO.getPic().split("\\.");
+                        String newPic = splitAckordPic[0] + " копия.gif";
+
+                        ackord.setImageData(readBytes(getApplicationContext().getAssets().open(newPic)));
+
+                    } catch (IOException e) {
+                        System.out.println(ackordTDO.getName() + "---" + ackordTDO.getPic());
+                        String[] split2 = ackordTDO.getPic().split("=");
+                        String name2 = split2[1].replace('/', 's');
+                        try {
+                            ackord.setImageData(readBytes(getApplicationContext().getAssets().open(getString(R.string.pathChords)+name2 +" копия.gif")));
+                        } catch (IOException e1) {
+                            System.out.println(ackordTDO.getName() + "-22-" + ackordTDO.getPic());
+
+                            e1.printStackTrace();
+                        }
+
+                        e.printStackTrace();
+                    }
+                    ackord = ackordDao.createItem(ackord);
+                    song.getAckords().add(ackord);
+                }
 
 
+                song.setText(songTDO.getText());
+                song.setName(songTDO.getName().toLowerCase());
+                song.setClearText(songTDO.getClearText());
+                song = songDao.createItem(song);
 
-      }
+                group.getListSongs().add(song);
+            }
+
+            GroupDao groupDao = new GroupDao();
+            Group g = groupDao.createItem(group);
+
+           // for(Song song: group.getListSongs()) {
+            //    song.setParentId(g.getId());
+          //      //songDao.update(song);
+          //  }
+
+
+        }
 
      /*   ReaderHtml readerHtml = new ReaderHtml(getApplicationContext());
         List<Document> documents = null;
@@ -129,7 +161,14 @@ public class MainActivity extends AppCompatActivity {
 
         realm.commitTransaction();*/
         System.out.println("начало");
+
+        ImageView i = findViewById(R.id.image);
+
+        i.setImageBitmap(f);
+
+
     }
+
     public byte[] readBytes(InputStream inputStream) throws IOException {
         // this dynamically extends to take the bytes you read
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
@@ -147,4 +186,22 @@ public class MainActivity extends AppCompatActivity {
         // and then we can return your byte array.
         return byteBuffer.toByteArray();
     }
+
+    private byte[] getLetterTile(String name) {
+        int COVER_IMAGE_SIZE = 100; //in pixels
+        LetterBitmap letterBitmap = new LetterBitmap(getApplicationContext());
+
+
+        Bitmap letterTile = letterBitmap.getLetterTile(name, "red" , 400, 300);
+
+        //f = letterTile;
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        letterTile.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+
+        return byteArray;
+    }
+
+
+
 }

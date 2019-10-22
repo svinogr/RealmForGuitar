@@ -35,4 +35,10 @@ public class SongDao {
 
         return id.intValue();
     }
+
+    public void update(Song song) {
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(song);
+        realm.commitTransaction();
+    }
 }

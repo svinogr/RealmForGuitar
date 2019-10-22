@@ -2,12 +2,15 @@ package com.example.realmforguitar.model;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.Required;
 
 public class Ackord  extends RealmObject {
-    private String name;
+    @Required
+    private String name = "";
     private byte[] imageData;
+    private boolean isUser = false;
     @PrimaryKey
-    private int id;
+    private int id = 0;
 
     public int getId() {
         return id;
@@ -31,6 +34,14 @@ public class Ackord  extends RealmObject {
 
     public void setImageData(byte[] imageData) {
         this.imageData = imageData;
+    }
+
+    public boolean isUser() {
+        return isUser;
+    }
+
+    public void setUser(boolean user) {
+        isUser = user;
     }
 
     @Override

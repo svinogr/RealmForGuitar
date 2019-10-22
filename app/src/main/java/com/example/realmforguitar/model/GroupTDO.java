@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class GroupTDO {
+public class GroupTDO implements Comparable<GroupTDO> {
     private String name;
     private String pic;
     private List<SongTDO> tdoSongList = new ArrayList<>();
@@ -44,5 +44,11 @@ public class GroupTDO {
     @Override
     public int hashCode() {
         return Objects.hash(name);
+    }
+
+
+    @Override
+    public int compareTo(GroupTDO o) {
+        return this.name.compareTo(o.getName());
     }
 }

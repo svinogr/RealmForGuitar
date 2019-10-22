@@ -3,14 +3,17 @@ package com.example.realmforguitar.model;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.Required;
 
 public class Group  extends RealmObject {
-    private String name;
-    private String descriptionGroup;
+    @Required
+    private String name = "";
+    @Required
+    private String descriptionGroup = "";
     private boolean isUser;
     private byte[] imgData;
-    private boolean isFavoritel;
-    private RealmList<Song> listSings = new RealmList<>();
+    private boolean isFavorite;
+    private RealmList<Song> listSongs = new RealmList<>();
     @PrimaryKey
     private int id;
 
@@ -21,12 +24,12 @@ public class Group  extends RealmObject {
     public void setId(int id) {
         this.id = id;
     }
-    public RealmList<Song> getListSings() {
-        return listSings;
+    public RealmList<Song> getListSongs() {
+        return listSongs;
     }
 
-    public void setListSings(RealmList<Song> listSings) {
-        this.listSings = listSings;
+    public void setListSongs(RealmList<Song> listSongs) {
+        this.listSongs = listSongs;
     }
 
     public String getName() {
@@ -62,11 +65,11 @@ public class Group  extends RealmObject {
     }
 
     public boolean isFavoritel() {
-        return isFavoritel;
+        return isFavorite;
     }
 
-    public void setFavoritel(boolean favoritel) {
-        isFavoritel = favoritel;
+    public void setFavoritel(boolean favorite) {
+        isFavorite = favorite;
     }
 
     @Override
@@ -74,7 +77,7 @@ public class Group  extends RealmObject {
 
 
         return "Group{" +
-                "name='" + name + '\'' + listSings.toString()
+                "name='" + name + '\'' + listSongs.toString()
                + '}';
     }
 }

@@ -2,10 +2,8 @@ package com.example.realmforguitar.readers;
 
 import android.content.Context;
 
-import com.example.realmforguitar.model.Ackord;
 import com.example.realmforguitar.model.AckordTDO;
 import com.example.realmforguitar.model.GroupTDO;
-import com.example.realmforguitar.model.Song;
 import com.example.realmforguitar.model.SongTDO;
 
 import org.json.JSONArray;
@@ -23,6 +21,7 @@ import java.util.Map;
 
 public class ParserJson {
     private Context context;
+    private final static String JSON = "json";
 
     public ParserJson(Context context) {
         this.context = context;
@@ -31,24 +30,25 @@ public class ParserJson {
     public Map<GroupTDO, List<SongTDO>> parse() {
         Map<GroupTDO, List<SongTDO>> map = new HashMap<>();
 
-        StringBuilder str = new StringBuilder();
+//        StringBuilder str = new StringBuilder();
+//        try {
+//            InputStream json = context.getAssets().open(JSON);
+//            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(json));
+//
+//            String s;
+//
+//            while ((s = bufferedReader.readLine()) != null) {
+//                str.append(s);
+//            }
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+
         try {
-            InputStream json = context.getAssets().open("json");
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(json));
-
-            String s;
-
-            while ((s = bufferedReader.readLine()) != null) {
-                str.append(s);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        try {
-            JSONArray jsonArray = new JSONArray(str.toString());
+         //   JSONArray jsonArray = new JSONArray(str.toString());
+            JSONArray jsonArray = new JSONArray(loadJSONFromAsset(context));
 
             for (int i = 0; i < jsonArray.length(); i++) {
 
@@ -76,8 +76,11 @@ public class ParserJson {
                 JSONObject songObj = jsonObject.getJSONObject("song");
                 String nameSong = songObj.getString("name");
                 String textSong = songObj.getString("text");
+                String clearText = songObj.getString("clearText");
+
                 song.setName(nameSong);
                 song.setText(textSong);
+                song.setClearText(clearText);
 
 
                 if (songList.size() == 0) {
@@ -119,5 +122,29 @@ public class ParserJson {
             e.printStackTrace();
         }
         return map;
+    }
+
+    public String loadJSONFromAsset(Context context) {
+        String json = null;
+        try {
+            InputStream is = context.getAssets().open("json");
+
+            int size = is.available();
+
+            byte[] buffer = new byte[size];
+
+            is.read(buffer);
+
+            is.close();
+
+            json = new String(buffer, "UTF-8");
+
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
+
     }
 }

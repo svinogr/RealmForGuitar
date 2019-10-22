@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">RealmForGuitar</string>
+<string name="app_name">RealmForGuitar</string>
+<string name="pathChords">pic/chords/</string>
 </resources>
